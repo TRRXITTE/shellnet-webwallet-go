@@ -9,45 +9,27 @@ import (
 
 	"github.com/dchest/captcha"
 	"github.com/julienschmidt/httprouter"
-	"github.com/ulule/limiter/v3"
-	"github.com/ulule/limiter/v3/drivers/store/memory"
-	"github.com/ulule/limiter/v3/drivers/middleware/stdlib"
 )
 
-// InitHandlers sets up the http handlers with rate limiting middleware
+// InitHandlers - sets up the http handlers
 func InitHandlers(r *httprouter.Router) {
-	// Create a limiter instance with memory store
-	rateLimiter := limiter.New(memory.NewStore(), limiter.Rate{
-		Period: time.Minute,
-		Limit:  100,
-	})
-
-	// Wrap handlers with rate limiting middleware
-	r.GET("/", func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-		stdlib.NewHandler(rateLimiter, http.HandlerFunc(index)).ServeHTTP(res, req)
-	})
-	r.GET("/tos", func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-		stdlib.NewHandler(rateLimiter, http.HandlerFunc(terms)).ServeHTTP(res, req)
-	})
-	// Add other handlers with rate limiting here...
-
-
-	// Wrap handlers with rate limiting middleware
-	r.GET("/", stdlib.NewHandler(rateLimiter, index))
-	r.GET("/tos", stdlib.NewHandler(rateLimiter, terms))
-	r.GET("/login", stdlib.NewHandler(rateLimiter, loginPage))
-	r.POST("/login", stdlib.NewHandler(strictRL, loginHandler))
-	r.GET("/logout", stdlib.NewHandler(rateLimiter, logoutHandler))
-	r.GET("/signup", stdlib.NewHandler(rateLimiter, signupPage))
-	r.POST("/signup", stdlib.NewHandler(strictRL, signupHandler))
-	r.GET("/account", stdlib.NewHandler(rateLimiter, accountPage))
-	r.GET("/account/keys", stdlib.NewHandler(rateLimiter, walletKeys))
-	r.POST("/account/delete", stdlib.NewHandler(rateLimiter, deleteHandler))
-	r.GET("/account/wallet_info", stdlib.NewHandler(rateLimiter, getWalletInfo))
-	r.POST("/account/export_keys", stdlib.NewHandler(rateLimiter, keyHandler))
-	r.POST("/account/send_transaction", stdlib.NewHandler(rateLimiter, sendHandler))
-	r.Handler(http.MethodGet, "/captcha/*name", captcha.Server(captcha.StdWidth, captcha.StdHeight))
-	r.Handler(http.MethodGet, "/assets/*filepath", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
+	r.GET("/", limit(index, ratelimiter))
+	r.GET("/tos", limit(terms, ratelimiter))
+	r.GET("/login", limit(loginPage, ratelimiter))
+	r.POST("/login", limit(loginHandler, strictRL))
+	r.GET("/logout", limit(logoutHandler, ratelimiter))
+	r.GET("/signup", limit(signupPage, ratelimiter))
+	r.POST("/signup", limit(signupHandler, strictRL))
+	r.GET("/account", limit(accountPage, ratelimiter))
+	r.GET("/account/keys", limit(walletKeys, ratelimiter))
+	r.POST("/account/delete", limit(deleteHandler, ratelimiter))
+	r.GET("/account/wallet_info", limit(getWalletInfo, ratelimiter))
+	r.POST("/account/export_keys", limit(keyHandler, ratelimiter))
+	r.POST("/account/send_transaction", limit(sendHandler, ratelimiter))
+	r.Handler(http.MethodGet, "/captcha/*name",
+		captcha.Server(captcha.StdWidth, captcha.StdHeight))
+	r.Handler(http.MethodGet, "/assets/*filepath", http.StripPrefix("/assets",
+		http.FileServer(http.Dir("./assets"))))
 }
 
 // index displays homepage - method: GET
