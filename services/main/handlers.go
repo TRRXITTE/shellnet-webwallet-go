@@ -11,7 +11,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/ulule/limiter/v3"
 	"github.com/ulule/limiter/v3/drivers/store/memory"
-	"github.com/ulule/limiter/v3/drivers/middleware/stdlib"
+	limiter "github.com/ulule/limiter/v3"
 )
 
 // InitHandlers sets up the http handlers with rate limiting middleware
@@ -23,19 +23,19 @@ func InitHandlers(r *httprouter.Router, ratelimiter, strictRL *stdlib.Middleware
 	})
 
 	// Wrap handlers with rate limiting middleware
-	r.GET("/", stdlib.NewHandler(rateLimiter, index))
-	r.GET("/tos", stdlib.NewHandler(rateLimiter, terms))
-	r.GET("/login", stdlib.NewHandler(rateLimiter, loginPage))
-	r.POST("/login", stdlib.NewHandler(strictRL, loginHandler))
-	r.GET("/logout", stdlib.NewHandler(rateLimiter, logoutHandler))
-	r.GET("/signup", stdlib.NewHandler(rateLimiter, signupPage))
-	r.POST("/signup", stdlib.NewHandler(strictRL, signupHandler))
-	r.GET("/account", stdlib.NewHandler(rateLimiter, accountPage))
-	r.GET("/account/keys", stdlib.NewHandler(rateLimiter, walletKeys))
-	r.POST("/account/delete", stdlib.NewHandler(rateLimiter, deleteHandler))
-	r.GET("/account/wallet_info", stdlib.NewHandler(rateLimiter, getWalletInfo))
-	r.POST("/account/export_keys", stdlib.NewHandler(rateLimiter, keyHandler))
-	r.POST("/account/send_transaction", stdlib.NewHandler(rateLimiter, sendHandler))
+	r.GET("/", limiter.NewHandler(rateLimiter, index))
+	r.GET("/tos", limiter.NewHandler(rateLimiter, terms))
+	r.GET("/login", limiter.NewHandler(rateLimiter, loginPage))
+	r.POST("/login", limiter.NewHandler(strictRL, loginHandler))
+	r.GET("/logout", limiter.NewHandler(rateLimiter, logoutHandler))
+	r.GET("/signup", limiter.NewHandler(rateLimiter, signupPage))
+	r.POST("/signup", limiter.NewHandler(strictRL, signupHandler))
+	r.GET("/account", limiter.NewHandler(rateLimiter, accountPage))
+	r.GET("/account/keys", limiter.NewHandler(rateLimiter, walletKeys))
+	r.POST("/account/delete", limiter.NewHandler(rateLimiter, deleteHandler))
+	r.GET("/account/wallet_info", limiter.NewHandler(rateLimiter, getWalletInfo))
+	r.POST("/account/export_keys", limiter.NewHandler(rateLimiter, keyHandler))
+	r.POST("/account/send_transaction", limiter.NewHandler(rateLimiter, sendHandler))
 	r.Handler(http.MethodGet, "/captcha/*name", captcha.Server(captcha.StdWidth, captcha.StdHeight))
 	r.Handler(http.MethodGet, "/assets/*filepath", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 }
