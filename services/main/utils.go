@@ -11,9 +11,10 @@ import (
 	"time"
 
 	"github.com/dchest/captcha"
+
 	"github.com/gomodule/redigo/redis"
 	"github.com/julienschmidt/httprouter"
-	"github.com/ulule/limiter/v3/drivers/middleware/stdlib"
+	"github.com/ulule/limiter/drivers/middleware/stdlib"
 )
 
 type jsonResponse struct {
@@ -35,8 +36,7 @@ type pageInfo struct {
 // limit - rate limiter middleware
 func limit(h httprouter.Handle, rl *stdlib.Middleware) httprouter.Handle {
 	return func(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
-		// Retrieve the limiter context using the Handler method
-		context, err := rl.Get(req)
+		context, err := rl.Limiter.Get(req.Context(), rl.Limiter.GetIPKey(req))
 		if err != nil {
 			rl.OnError(res, req, err)
 			return
@@ -141,6 +141,7 @@ func sessionDelKey(key string) error {
 	conn := sessionDB.Get()
 	defer conn.Close()
 	_, err := conn.Do("DEL", key)
+
 	return err
 }
 
@@ -213,7 +214,7 @@ func newPool(server string) *redis.Pool {
 	}
 }
 
-// cleanupHook - close redis pool on exit
+// cleanipHook - close redis pool on exit
 func cleanupHook() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)

@@ -5,25 +5,16 @@ import (
 	"net/http"
 	"time"
 
+	_ "github.com/lib/pq"
+
 	"github.com/julienschmidt/httprouter"
-	"github.com/ulule/limiter/v3"
-	"github.com/ulule/limiter/v3/drivers/store/memory"
-	"github.com/ulule/limiter/v3/drivers/middleware/stdlib"
 )
 
 func main() {
+	defer logFile.Close()
+	log.SetOutput(logFile)
+
 	router := httprouter.New()
-
-	// Create rate limiter middleware instances
-	rateLimiter := stdlib.NewMiddleware(limiter.New(memory.NewStore(), limiter.Rate{
-		Limit: 100,                  // limit to 100 requests per interval
-		Period: 1 * time.Second,     // interval to check the limit
-	}))
-
-	strictRateLimiter := stdlib.NewMiddleware(limiter.New(memory.NewStore(), limiter.Rate{
-		Limit: 50,                   // limit to 50 requests per interval
-		Period: 1 * time.Second,     // interval to check the limit
-	}))
 
 	srv := &http.Server{
 		Addr:         hostPort,
@@ -33,8 +24,13 @@ func main() {
 		Handler:      router,
 	}
 
-	InitHandlers(router, rateLimiter, strictRateLimiter)
+	InitHandlers(router)
 
+	/* https to http redirection
+	go http.ListenAndServe(":80", http.HandlerFunc(httpsRedirect))
+	log.Println("Info: Starting Service on:", hostURI)
+	log.Fatal(srv.ListenAndServeTLS("fullchain.pem", "privkey.pem"))
+	*/
 	log.Println("Info: Starting Service on:", hostURI)
 	log.Fatal(srv.ListenAndServe())
 }
