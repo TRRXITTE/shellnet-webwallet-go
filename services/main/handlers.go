@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"log"  // Ensure log package is imported
 
 	"github.com/dchest/captcha"
 	"github.com/julienschmidt/httprouter"
