@@ -35,25 +35,32 @@ type pageInfo struct {
 
 // limit - rate limiter middleware
 func limit(h httprouter.Handle, rl *stdlib.Middleware) httprouter.Handle {
-	return func(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
-		context, err := rl.Limiter.Get(req.Context(), rl.Limiter.GetIPKey(req))
-		if err != nil {
-			rl.OnError(res, req, err)
-			return
-		}
+    return func(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
+        ipKey := getIPKey(req)
+        context, err := rl.Limiter.Get(req.Context(), ipKey)
+        if err != nil {
+            rl.OnError(res, req, err)
+            return
+        }
 
-		res.Header().Add("X-RateLimit-Limit", strconv.FormatInt(context.Limit, 10))
-		res.Header().Add("X-RateLimit-Remaining", strconv.FormatInt(context.Remaining, 10))
-		res.Header().Add("X-RateLimit-Reset", strconv.FormatInt(context.Reset, 10))
+        res.Header().Add("X-RateLimit-Limit", strconv.FormatInt(context.Limit, 10))
+        res.Header().Add("X-RateLimit-Remaining", strconv.FormatInt(context.Remaining, 10))
+        res.Header().Add("X-RateLimit-Reset", strconv.FormatInt(context.Reset, 10))
 
-		if context.Reached {
-			rl.OnLimitReached(res, req)
-			return
-		}
-		res.Header().Set("Access-Control-Allow-Origin", "*")
-		req.Body = http.MaxBytesReader(res, req.Body, 2048) // limit post size
-		h(res, req, p)
-	}
+        if context.Reached {
+            rl.OnLimitReached(res, req)
+            return
+        }
+        res.Header().Set("Access-Control-Allow-Origin", "*")
+        req.Body = http.MaxBytesReader(res, req.Body, 2048) // limit post size
+        h(res, req, p)
+    }
+}
+
+// getIPKey returns the IP key.
+func getIPKey(req *http.Request) string {
+    // Your implementation to get the IP key
+    return ""
 }
 
 // httpsRedirect - redirects http to https
