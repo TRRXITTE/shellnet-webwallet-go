@@ -18,14 +18,15 @@ func main() {
 	router := httprouter.New()
 
 	// Create rate limiter middleware instances
-	rateLimiter := stdlib.NewMiddleware(limiter.NewIPRateLimiter(memory.NewStore(), limiter.IPConfig{
-		Max:        100,          // limit each IP to 100 requests per interval
-		Identifier: "",           // identify clients by their IP address
+	rateLimiter := stdlib.NewMiddleware(limiter.New(memory.NewStore(), limiter.Rate{
+		Max:        100,          // limit to 100 requests per interval
+		Identifier: "",           // identifier to group requests (e.g., by IP address)
 		Every:      time.Second,  // interval to check the limit
 	}))
-	strictRateLimiter := stdlib.NewMiddleware(limiter.NewIPRateLimiter(memory.NewStore(), limiter.IPConfig{
-		Max:        50,           // limit each IP to 50 requests per interval
-		Identifier: "",           // identify clients by their IP address
+
+	strictRateLimiter := stdlib.NewMiddleware(limiter.New(memory.NewStore(), limiter.Rate{
+		Max:        50,           // limit to 50 requests per interval
+		Identifier: "",           // identifier to group requests (e.g., by IP address)
 		Every:      time.Second,  // interval to check the limit
 	}))
 
@@ -39,11 +40,6 @@ func main() {
 
 	InitHandlers(router, rateLimiter, strictRateLimiter)
 
-	/* https to http redirection
-	go http.ListenAndServe(":80", http.HandlerFunc(httpsRedirect))
-	log.Println("Info: Starting Service on:", hostURI)
-	log.Fatal(srv.ListenAndServeTLS("fullchain.pem", "privkey.pem"))
-	*/
 	log.Println("Info: Starting Service on:", hostURI)
 	log.Fatal(srv.ListenAndServe())
 }
