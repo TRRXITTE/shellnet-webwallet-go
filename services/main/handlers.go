@@ -9,7 +9,7 @@ import (
 
 	"github.com/dchest/captcha"
 	"github.com/julienschmidt/httprouter"
-	"github.com/ulule/limiter/drivers/middleware/stdlib" // Updated import path
+	"github.com/ulule/limiter/v3/drivers/middleware/stdlib"
 )
 
 // InitHandlers - sets up the http handlers
@@ -32,7 +32,6 @@ func InitHandlers(r *httprouter.Router, ratelimiter, strictRL *stdlib.Middleware
 	r.Handler(http.MethodGet, "/assets/*filepath", http.StripPrefix("/assets",
 		http.FileServer(http.Dir("./assets"))))
 }
-
 
 // index displays homepage - method: GET
 func index(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
