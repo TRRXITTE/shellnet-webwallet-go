@@ -214,10 +214,8 @@ func signupHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Para
     password := req.FormValue("password")
     verifyPassword := req.FormValue("verify_password")
 
-    // Add length validation
-    maxLength := 585
-    if len(username) < 1 || len(password) < 1 || len(username) > maxLength || len(password) > maxLength {
-        message = "Username/Password too long"
+    if len(username) < 1 || len(password) < 1 || len(username) > 64 {
+        message = "Incorrect Username/Password format"
     } else if password != verifyPassword {
         message = "Passwords do not match"
     } else {
