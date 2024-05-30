@@ -9,8 +9,6 @@ import (
 
 	"github.com/dchest/captcha"
 	"github.com/julienschmidt/httprouter"
-	"github.com/ulule/limiter/v3"
-	"github.com/ulule/limiter/v3/drivers/store/memory"
 	"github.com/ulule/limiter/v3/drivers/middleware/stdlib"
 )
 
