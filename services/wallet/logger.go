@@ -54,7 +54,7 @@ func NewService() *TurtleService {
 		LastBlock:          1,
 		Timeout:            5000,
 		PollingInterval:    10000,
-		RPCPort:            8447,
+		RPCPort:            8440,
 	}
 	return service
 }

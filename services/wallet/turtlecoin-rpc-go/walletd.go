@@ -20,7 +20,7 @@ func (wallet *Walletd) check() error {
 		wallet.URL = "127.0.0.1"
 	}
 	if wallet.Port == 0 {
-		wallet.Port = 8447
+		wallet.Port = 8440
 	}
 	if wallet.RPCPassword == "" {
 		return errors.New("RPCPassword not specified")

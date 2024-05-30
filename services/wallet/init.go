@@ -55,8 +55,8 @@ func init() {
 		panic("Set the RPC_PWD env variable")
 	}
 	if rpcPort, err = strconv.Atoi(os.Getenv("RPC_PORT")); rpcPort == 0 || err != nil {
-		rpcPort = 8447
-		println("Using default RPC_PORT - 8447")
+		rpcPort = 8440
+		println("Using default RPC_PORT - 8440")
 	}
 
 	wallet := NewService()
