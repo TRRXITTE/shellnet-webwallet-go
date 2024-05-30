@@ -24,7 +24,7 @@ func (wallet *WalletAPI) check() error {
 		wallet.URL = "127.0.0.1"
 	}
 	if wallet.Port == 0 {
-		wallet.Port = 8070
+		wallet.Port = 8447
 	}
 	if wallet.DaemonURL == "" {
 		wallet.DaemonURL = "127.0.0.1"
@@ -534,7 +534,7 @@ func (wallet *WalletAPI) Reset(scanHeight int) error {
 }
 
 // ValidateAddress method validates an address for
-// TRTL compatibility and returns the address break-down
+// XTE compatibility and returns the address break-down
 func (wallet *WalletAPI) ValidateAddress(address string) (map[string]interface{}, error) {
 	err := wallet.check()
 	if err != nil {

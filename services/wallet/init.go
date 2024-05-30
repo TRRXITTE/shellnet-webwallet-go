@@ -18,8 +18,8 @@ var (
 const (
 	// Forking config.
 	addressFormat          = "^XT([a-zA-Z0-9]{95}|[a-zA-Z0-9]{183})$"
-	divisor        float64 = 100 // This is 100 for TRTL
-	transactionFee         = 10  // This is 10 for TRTL
+	divisor        float64 = 100 // This is 100 for XTE
+	transactionFee         = 100  // This is 10 for XTE
 )
 
 func init() {
@@ -55,8 +55,8 @@ func init() {
 		panic("Set the RPC_PWD env variable")
 	}
 	if rpcPort, err = strconv.Atoi(os.Getenv("RPC_PORT")); rpcPort == 0 || err != nil {
-		rpcPort = 8070
-		println("Using default RPC_PORT - 8070")
+		rpcPort = 8447
+		println("Using default RPC_PORT - 8447")
 	}
 
 	wallet := NewService()
