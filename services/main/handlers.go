@@ -15,12 +15,22 @@ import (
 )
 
 // InitHandlers sets up the http handlers with rate limiting middleware
-func InitHandlers(r *httprouter.Router, ratelimiter, strictRL *stdlib.Middleware) {
+func InitHandlers(r *httprouter.Router) {
 	// Create a limiter instance with memory store
 	rateLimiter := limiter.New(memory.NewStore(), limiter.Rate{
 		Period: time.Minute,
 		Limit:  100,
 	})
+
+	// Wrap handlers with rate limiting middleware
+	r.GET("/", func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+		stdlib.NewHandler(rateLimiter, http.HandlerFunc(index)).ServeHTTP(res, req)
+	})
+	r.GET("/tos", func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+		stdlib.NewHandler(rateLimiter, http.HandlerFunc(terms)).ServeHTTP(res, req)
+	})
+	// Add other handlers with rate limiting here...
+}
 
 	// Wrap handlers with rate limiting middleware
 	r.GET("/", stdlib.NewHandler(rateLimiter, index))
