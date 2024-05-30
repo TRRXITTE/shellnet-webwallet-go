@@ -9,7 +9,7 @@ import (
 
 	"github.com/traaitt/turtlecoin-rpc-go/walletd"
 
-	"github.com/lib/pq"
+	_ "github.com/lib/pq"
 
 	"github.com/julienschmidt/httprouter"
 )
