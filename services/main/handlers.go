@@ -9,24 +9,33 @@ import (
 
 	"github.com/dchest/captcha"
 	"github.com/julienschmidt/httprouter"
+	"github.com/ulule/limiter/v3"
+	"github.com/ulule/limiter/v3/drivers/store/memory"
 	"github.com/ulule/limiter/v3/drivers/middleware/stdlib"
 )
 
 // InitHandlers sets up the http handlers with rate limiting middleware
 func InitHandlers(r *httprouter.Router, ratelimiter, strictRL *stdlib.Middleware) {
-	r.GET("/", limit(index, ratelimiter))
-	r.GET("/tos", limit(terms, ratelimiter))
-	r.GET("/login", limit(loginPage, ratelimiter))
-	r.POST("/login", limit(loginHandler, strictRL))
-	r.GET("/logout", limit(logoutHandler, ratelimiter))
-	r.GET("/signup", limit(signupPage, ratelimiter))
-	r.POST("/signup", limit(signupHandler, strictRL))
-	r.GET("/account", limit(accountPage, ratelimiter))
-	r.GET("/account/keys", limit(walletKeys, ratelimiter))
-	r.POST("/account/delete", limit(deleteHandler, ratelimiter))
-	r.GET("/account/wallet_info", limit(getWalletInfo, ratelimiter))
-	r.POST("/account/export_keys", limit(keyHandler, ratelimiter))
-	r.POST("/account/send_transaction", limit(sendHandler, ratelimiter))
+	// Create a limiter instance with memory store
+	rateLimiter := limiter.New(memory.NewStore(), limiter.Rate{
+		Period: time.Minute,
+		Limit:  100,
+	})
+
+	// Wrap handlers with rate limiting middleware
+	r.GET("/", ratelimiter.Handle(index))
+	r.GET("/tos", ratelimiter.Handle(terms))
+	r.GET("/login", ratelimiter.Handle(loginPage))
+	r.POST("/login", strictRL.Handle(loginHandler))
+	r.GET("/logout", ratelimiter.Handle(logoutHandler))
+	r.GET("/signup", ratelimiter.Handle(signupPage))
+	r.POST("/signup", strictRL.Handle(signupHandler))
+	r.GET("/account", ratelimiter.Handle(accountPage))
+	r.GET("/account/keys", ratelimiter.Handle(walletKeys))
+	r.POST("/account/delete", ratelimiter.Handle(deleteHandler))
+	r.GET("/account/wallet_info", ratelimiter.Handle(getWalletInfo))
+	r.POST("/account/export_keys", ratelimiter.Handle(keyHandler))
+	r.POST("/account/send_transaction", ratelimiter.Handle(sendHandler))
 	r.Handler(http.MethodGet, "/captcha/*name", captcha.Server(captcha.StdWidth, captcha.StdHeight))
 	r.Handler(http.MethodGet, "/assets/*filepath", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 }
