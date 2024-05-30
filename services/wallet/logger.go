@@ -10,7 +10,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/traaitt/turtlecoin-rpc-go/walletd"
+	"./turtlecoin-rpc-go/walletd"
 )
 
 var (
