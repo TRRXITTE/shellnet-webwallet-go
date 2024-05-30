@@ -37,7 +37,8 @@ type pageInfo struct {
 // limit - rate limiter middleware
 func limit(h httprouter.Handle, rl *stdlib.Middleware) httprouter.Handle {
 	return func(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
-		context, err := rl.Get(req.Context(), rl.Limiter)
+		// Retrieve the limiter context using the Handler method
+		context, err := rl.Handler(req)
 		if err != nil {
 			rl.OnError(res, req, err)
 			return
@@ -56,6 +57,7 @@ func limit(h httprouter.Handle, rl *stdlib.Middleware) httprouter.Handle {
 		h(res, req, p)
 	}
 }
+
 
 // httpsRedirect - redirects http to https
 func httpsRedirect(res http.ResponseWriter, req *http.Request) {
