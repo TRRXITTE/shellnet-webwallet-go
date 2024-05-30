@@ -202,31 +202,35 @@ func logoutHandler(res http.ResponseWriter, req *http.Request, p httprouter.Para
 	http.Redirect(res, req, hostURI, http.StatusSeeOther)
 }
 
-// signupHandler tries to add a new user - method: POST
 func signupHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	if alreadyLoggedIn(res, req) {
-		http.Redirect(res, req, hostURI, http.StatusSeeOther)
-		return
-	}
-	var message string
-	username := req.FormValue("username")
-	password := req.FormValue("password")
-	verifyPassword := req.FormValue("verify_password")
+    if alreadyLoggedIn(res, req) {
+        http.Redirect(res, req, hostURI, http.StatusSeeOther)
+        return
+    }
 
-	if len(username) < 1 || len(password) < 1 || len(username) > 64 {
-		message = "Incorrect Username/Password format"
-	} else if password != verifyPassword {
-		message = "Passwords do not match"
-	} else if response := tryAuth(username, password, "signup"); response.Status != "OK" {
-		message = "Could not create account. Try again"
-	}
+    var message string
+    username := req.FormValue("username")
+    password := req.FormValue("password")
+    verifyPassword := req.FormValue("verify_password")
 
-	if message != "" {
-		InternalServerError(res, req, authMessage(res, message, "signup", "error"))
-	} else {
-		message = "Account Created, Please Log In"
-		InternalServerError(res, req, authMessage(res, message, "login", "success"))
-	}
+    if len(username) < 1 || len(password) < 1 || len(username) > 64 {
+        message = "Incorrect Username/Password format"
+    } else if password != verifyPassword {
+        message = "Passwords do not match"
+    } else {
+        response := tryAuth(username, password, "signup")
+        if response.Status != "OK" {
+            message = "Could not create account. Try again"
+            log.Printf("Failed to create account for user %s: %v", username, response.Status)
+        }
+    }
+
+    if message != "" {
+        InternalServerError(res, req, authMessage(res, message, "signup", "error"))
+    } else {
+        message = "Account Created, Please Log In"
+        InternalServerError(res, req, authMessage(res, message, "login", "success"))
+    }
 }
 
 // getWalletInfo - gets wallet info
