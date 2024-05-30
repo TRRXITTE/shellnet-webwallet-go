@@ -30,7 +30,7 @@ func InitHandlers(r *httprouter.Router) {
 		stdlib.NewHandler(rateLimiter, http.HandlerFunc(terms)).ServeHTTP(res, req)
 	})
 	// Add other handlers with rate limiting here...
-}
+
 
 	// Wrap handlers with rate limiting middleware
 	r.GET("/", stdlib.NewHandler(rateLimiter, index))
