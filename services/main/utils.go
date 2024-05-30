@@ -36,7 +36,7 @@ type pageInfo struct {
 // limit - rate limiter middleware
 func limit(h httprouter.Handle, rl *stdlib.Middleware) httprouter.Handle {
 	return func(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
-		context, err := rl.Limiter.Get(req.Context(), rl.Limiter.GetIPKey(req))
+		context, err := rl.Limiter.Get(req.Context())
 		if err != nil {
 			rl.OnError(res, req, err)
 			return
