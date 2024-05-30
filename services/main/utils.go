@@ -15,7 +15,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/ulule/limiter/v3"
 	"github.com/ulule/limiter/v3/drivers/store/memory"
-	"github.com/ulule/limiter/drivers/middleware/stdlib"
+	"github.com/ulule/limiter/v3/middleware/stdlib"
 )
 
 type jsonResponse struct {
@@ -38,7 +38,7 @@ type pageInfo struct {
 func limit(h httprouter.Handle, rl *stdlib.Middleware) httprouter.Handle {
 	return func(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
 		// Retrieve the limiter context using the Handler method
-		context, err := rl.Handler(req)
+		context, err := rl.Get(req)
 		if err != nil {
 			rl.OnError(res, req, err)
 			return
@@ -57,7 +57,6 @@ func limit(h httprouter.Handle, rl *stdlib.Middleware) httprouter.Handle {
 		h(res, req, p)
 	}
 }
-
 
 // httpsRedirect - redirects http to https
 func httpsRedirect(res http.ResponseWriter, req *http.Request) {
