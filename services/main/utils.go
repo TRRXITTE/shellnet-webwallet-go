@@ -15,7 +15,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/ulule/limiter/v3"
 	"github.com/ulule/limiter/v3/drivers/store/memory"
-	"github.com/ulule/limiter-contrib/v3/stdlib"
+	"github.com/ulule/limiter/drivers/middleware/stdlib"
 )
 
 type jsonResponse struct {
