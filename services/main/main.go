@@ -19,15 +19,15 @@ func main() {
 
 	// Create rate limiter middleware instances
 	rateLimiter := stdlib.NewMiddleware(limiter.New(memory.NewStore(), limiter.Rate{
-		Max:        100,          // limit to 100 requests per interval
+		Limit:      100,          // limit to 100 requests per interval
 		Identifier: "",           // identifier to group requests (e.g., by IP address)
-		Every:      time.Second,  // interval to check the limit
+		Period:     time.Second,  // interval to check the limit
 	}))
 
 	strictRateLimiter := stdlib.NewMiddleware(limiter.New(memory.NewStore(), limiter.Rate{
-		Max:        50,           // limit to 50 requests per interval
+		Limit:      50,           // limit to 50 requests per interval
 		Identifier: "",           // identifier to group requests (e.g., by IP address)
-		Every:      time.Second,  // interval to check the limit
+		Period:     time.Second,  // interval to check the limit
 	}))
 
 	srv := &http.Server{
