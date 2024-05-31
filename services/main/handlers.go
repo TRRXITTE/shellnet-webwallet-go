@@ -214,15 +214,24 @@ func signupHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Para
     password := req.FormValue("password")
     verifyPassword := req.FormValue("verify_password")
 
+    log.Printf("Attempting to create account: username length = %d, password length = %d", len(username), len(password))
+
     if len(username) < 1 || len(password) < 1 || len(username) > 64 {
         message = "Incorrect Username/Password format"
+        log.Printf("Failed validation: username length = %d, password length = %d", len(username), len(password))
     } else if password != verifyPassword {
         message = "Passwords do not match"
     } else {
-        response := tryAuth(username, password, "signup")
-        if response.Status != "OK" {
-            message = "Could not create account. Try again"
-            log.Printf("Failed to create account for user %s: %v", username, response.Status)
+        // Ensure password length matches the database constraints
+        if len(password) > 585 {
+            message = "Password too long"
+            log.Printf("Failed validation: password length = %d exceeds max length", len(password))
+        } else {
+            response := tryAuth(username, password, "signup")
+            if response.Status != "OK" {
+                message = "Could not create account. Try again"
+                log.Printf("Failed to create account for user %s: %v", username, response.Status)
+            }
         }
     }
 
@@ -233,6 +242,7 @@ func signupHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Para
         InternalServerError(res, req, authMessage(res, message, "login", "success"))
     }
 }
+
 
 // getWalletInfo - gets wallet info
 func getWalletInfo(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
