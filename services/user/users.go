@@ -91,13 +91,6 @@ func signup(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	// Log lengths for debugging
 	log.Printf("Length of IH: %d, Length of Verifier: %d", len(ih), len(verif))
 
-	// Check lengths before insertion
-	if len(ih) > 585 || len(verif) > 585 {
-		encoder.Encode(jsonResponse{Status: "Internal error: IH or Verifier too long"})
-		log.Printf("Internal error: IH (%d) or Verifier (%d) too long", len(ih), len(verif))
-		return
-	}
-
 	resb, err := http.Get(walletURI + "/create")
 	if err != nil {
 		encoder.Encode(jsonResponse{Status: err.Error()})
@@ -116,6 +109,7 @@ func signup(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		encoder.Encode(jsonResponse{Status: "OK"})
 	}
 }
+
 
 
 // login - verify username/password and sends back a sessionID
