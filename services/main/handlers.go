@@ -125,32 +125,42 @@ func loginPage(res http.ResponseWriter, req *http.Request, _ httprouter.Params) 
 	InternalServerError(res, req, err)
 }
 
-// loginHandler handles logins, redirects to account page on succeess - method: POST
+// loginHandler handles logins, redirects to account page on success - method: POST
 func loginHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	// Check if the user is already logged in, redirect to account page
 	if alreadyLoggedIn(res, req) {
 		http.Redirect(res, req, hostURI+"/account", http.StatusSeeOther)
 		return
 	}
+
+	// Verify captcha solution
 	if !captcha.VerifyString(req.FormValue("captchaId"), req.FormValue("captchaSolution")) {
 		http.Error(res, "Wrong captcha solution!", http.StatusForbidden)
 		return
 	}
 
+	// Retrieve username and password from form
 	username := req.FormValue("username")
 	password := req.FormValue("password")
+
+	// Authenticate user
 	response := tryAuth(username, password, "login")
 	if response.Status != "OK" {
+		// Handle authentication error
 		InternalServerError(res, req, authMessage(res, response.Status, "login", "error"))
 		return
 	}
 
+	// Create session cookie
 	cookie := &http.Cookie{
 		Name:     "session",
 		Value:    response.Data["sessionID"].(string),
 		Path:     "/",
 		HttpOnly: true,
-		Expires:  time.Now().Add(time.Hour * 420),
+		Expires:  time.Now().Add(time.Hour * 420), // Adjust expiration time as needed
 	}
+
+	// Store session data
 	address := response.Data["address"].(string)
 	err := sessionSetKeys(cookie.Value, username, address)
 	if err != nil {
@@ -158,6 +168,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Param
 		return
 	}
 
+	// Set session cookie and redirect to account page
 	http.SetCookie(res, cookie)
 	http.Redirect(res, req, hostURI+"/account", http.StatusSeeOther)
 }
