@@ -214,13 +214,25 @@ func signupHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Para
     password := req.FormValue("password")
     verifyPassword := req.FormValue("verify_password")
 
-    if len(username) < 1 || len(password) < 1 || len(username) > 64 {
+    const maxUsernameLength = 64
+    const maxPasswordLength = 255 // Example length, adjust according to your needs
+
+    if len(username) < 1 || len(password) < 1 || len(username) > maxUsernameLength || len(password) > maxPasswordLength {
         message = "Incorrect Username/Password format"
     } else if password != verifyPassword {
         message = "Passwords do not match"
     } else {
         response := tryAuth(username, password, "signup")
-        if response.Status != "OK" {
+
+        // Debugging: Log lengths of fields
+        log.Printf("username length: %d, password length: %d", len(username), len(password))
+        verifierLength := len(response.Verifier) // Adjust based on how you generate the Verifier
+        log.Printf("verifier length: %d", verifierLength)
+
+        if verifierLength > 585 {
+            message = "Internal error: Verifier too long"
+            log.Printf("Verifier too long for user %s: length %d", username, verifierLength)
+        } else if response.Status != "OK" {
             message = "Could not create account. Try again"
             log.Printf("Failed to create account for user %s: %v", username, response.Status)
         }
@@ -234,22 +246,6 @@ func signupHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Para
     }
 }
 
-// getWalletInfo - gets wallet info
-func getWalletInfo(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	if !alreadyLoggedIn(res, req) {
-		http.Redirect(res, req, hostURI, http.StatusSeeOther)
-		return
-	}
-	usr := sessionGetKeys(req, "session")
-	if usr == nil {
-		http.Error(res, "Couldn't find user session", http.StatusInternalServerError)
-		return
-	}
-	response := walletCmd("status", usr.Address)
-	if response.Status == "OK" {
-		json.NewEncoder(res).Encode(response)
-	}
-}
 
 // sendHandler - sends a transaction
 func sendHandler(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
