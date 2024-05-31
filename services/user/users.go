@@ -119,74 +119,76 @@ func signup(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
 
 // login - verify username/password and sends back a sessionID
-func login(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
-	encoder := json.NewEncoder(res)
-	username := req.FormValue("username")
-	password := req.FormValue("password")
-	usr, err := getUser(username)
-	if err != nil {
-		encoder.Encode(jsonResponse{Status: "Incorrect Username/Password"})
-		return
-	}
+func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+    encoder := json.NewEncoder(res)
+    username := req.FormValue("username")
+    password := req.FormValue("password")
+    
+    usr, err := getUser(username)
+    if err != nil {
+        encoder.Encode(jsonResponse{Status: "Incorrect Username/Password"})
+        return
+    }
 
-	client, err := srpEnv.NewClient([]byte(username), []byte(password))
-	if err != nil {
-		encoder.Encode(jsonResponse{Status: err.Error()})
-		return
-	}
+    client, err := srpEnv.NewClient([]byte(username), []byte(password))
+    if err != nil {
+        encoder.Encode(jsonResponse{Status: err.Error()})
+        return
+    }
 
-	creds := client.Credentials()
+    creds := client.Credentials()
 
-	ih, A, err := srp.ServerBegin(creds)
-	if err != nil {
-		encoder.Encode(jsonResponse{Status: err.Error()})
-		return
-	}
+    ih, A, err := srp.ServerBegin(creds)
+    if err != nil {
+        encoder.Encode(jsonResponse{Status: err.Error()})
+        return
+    }
 
-	if usr.IH != ih {
-		encoder.Encode(jsonResponse{Status: "IH's didn't match"})
-		return
-	}
+    if usr.IH != ih {
+        encoder.Encode(jsonResponse{Status: "IH's didn't match"})
+        return
+    }
 
-	s, verif, err := srp.MakeSRPVerifier(usr.Verifier)
-	if err != nil {
-		encoder.Encode(jsonResponse{Status: err.Error()})
-		return
-	}
+    s, verif, err := srp.MakeSRPVerifier(usr.Verifier)
+    if err != nil {
+        encoder.Encode(jsonResponse{Status: err.Error()})
+        return
+    }
 
-	srv, err := s.NewServer(verif, A)
-	if err != nil {
-		encoder.Encode(jsonResponse{Status: err.Error()})
-		return
-	}
+    srv, err := s.NewServer(verif, A)
+    if err != nil {
+        encoder.Encode(jsonResponse{Status: err.Error()})
+        return
+    }
 
-	creds = srv.Credentials()
+    creds = srv.Credentials()
 
-	cauth, err := client.Generate(creds)
-	if err != nil {
-		encoder.Encode(jsonResponse{Status: err.Error()})
-		return
-	}
+    cauth, err := client.Generate(creds)
+    if err != nil {
+        encoder.Encode(jsonResponse{Status: err.Error()})
+        return
+    }
 
-	proof, ok := srv.ClientOk(cauth)
-	if !ok {
-		encoder.Encode(jsonResponse{Status: "Incorrect Username/Password"})
-		return
-	}
-	if !client.ServerOk(proof) {
-		encoder.Encode(jsonResponse{Status: "Incorrect Username/Password"})
-		return
-	}
-	if 1 != subtle.ConstantTimeCompare(client.RawKey(), srv.RawKey()) {
-		encoder.Encode(jsonResponse{Status: "Incorrect Username/Password"})
-		return
-	}
+    proof, ok := srv.ClientOk(cauth)
+    if !ok {
+        encoder.Encode(jsonResponse{Status: "Incorrect Username/Password"})
+        return
+    }
+    if !client.ServerOk(proof) {
+        encoder.Encode(jsonResponse{Status: "Incorrect Username/Password"})
+        return
+    }
+    if 1 != subtle.ConstantTimeCompare(client.RawKey(), srv.RawKey()) {
+        encoder.Encode(jsonResponse{Status: "Incorrect Username/Password"})
+        return
+    }
 
-	data := map[string]interface{}{
-		"sessionID": hex.EncodeToString(A.Bytes()),
-		"address":   usr.Address}
-	encoder.Encode(jsonResponse{Status: "OK", Data: data})
+    data := map[string]interface{}{
+        "sessionID": hex.EncodeToString(A.Bytes()),
+        "address":   usr.Address}
+    encoder.Encode(jsonResponse{Status: "OK", Data: data})
 }
+
 
 // deleteUser - removes user from db, deletes user address from container
 func deleteUser(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
