@@ -73,7 +73,6 @@ func main() {
 
 // signup - adds user to db
 func signup(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	// todo sanitize input
 	encoder := json.NewEncoder(res)
 	username := req.FormValue("username")
 	password := req.FormValue("password")
@@ -88,12 +87,27 @@ func signup(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		return
 	}
 	ih, verif := v.Encode()
+
+	// Log lengths for debugging
+	log.Printf("Length of IH: %d, Length of Verifier: %d", len(ih), len(verif))
+
+	// Check lengths before insertion
+	if len(ih) > 585 || len(verif) > 585 {
+		encoder.Encode(jsonResponse{Status: "Internal error: IH or Verifier too long"})
+		log.Printf("Internal error: IH (%d) or Verifier (%d) too long", len(ih), len(verif))
+		return
+	}
+
 	resb, err := http.Get(walletURI + "/create")
 	if err != nil {
 		encoder.Encode(jsonResponse{Status: err.Error()})
 		return
 	}
 	response, err := decodeResponse(resb)
+	if err != nil {
+		encoder.Encode(jsonResponse{Status: err.Error()})
+		return
+	}
 	address := response["Data"].(map[string]interface{})["address"].(string)
 	_, err = db.Exec("INSERT INTO accounts (ih, verifier, username, address) VALUES ($1, $2, $3, $4);", ih, verif, username, address)
 	if err != nil {
@@ -102,6 +116,7 @@ func signup(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		encoder.Encode(jsonResponse{Status: "OK"})
 	}
 }
+
 
 // login - verify username/password and sends back a sessionID
 func login(res http.ResponseWriter, req *http.Request, p httprouter.Params) {
