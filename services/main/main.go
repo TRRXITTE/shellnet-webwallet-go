@@ -1,36 +1,30 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"time"
+    "log"
+    "net/http"
+    "time"
 
-	_ "github.com/lib/pq"
-
-	"github.com/julienschmidt/httprouter"
+    "github.com/julienschmidt/httprouter"
 )
 
 func main() {
-	defer logFile.Close()
-	log.SetOutput(logFile)
+    router := httprouter.New()
 
-	router := httprouter.New()
+    srv := &http.Server{
+        Addr:         ":443", // HTTPS port
+        ReadTimeout:  10 * time.Second,
+        WriteTimeout: 10 * time.Second,
+        IdleTimeout:  10 * time.Second,
+        Handler:      router,
+    }
 
-	srv := &http.Server{
-		Addr:         hostPort,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  10 * time.Second,
-		Handler:      router,
-	}
+    InitHandlers(router)
 
-	InitHandlers(router)
+    log.Println("Info: Starting Service on HTTPS")
 
-	/* https to http redirection
-	go http.ListenAndServe(":80", http.HandlerFunc(httpsRedirect))
-	log.Println("Info: Starting Service on:", hostURI)
-	log.Fatal(srv.ListenAndServeTLS("fullchain.pem", "privkey.pem"))
-	*/
-	log.Println("Info: Starting Service on:", hostURI)
-	log.Fatal(srv.ListenAndServe())
+    // Provide the paths to your SSL certificate and key files
+    certFile := "/etc/letsencrypt/live/wallet.traaitt.com/fullchain.pem"
+    keyFile := "/etc/letsencrypt/live/wallet.traaitt.comm/privkey.pem"
+    log.Fatal(srv.ListenAndServeTLS(certFile, keyFile))
 }
