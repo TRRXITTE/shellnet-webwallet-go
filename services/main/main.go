@@ -25,6 +25,6 @@ func main() {
 
     // Provide the paths to your SSL certificate and key files
     certFile := "/etc/letsencrypt/live/wallet.traaitt.com/fullchain.pem"
-    keyFile := "/etc/letsencrypt/live/wallet.traaitt.comm/privkey.pem"
+    keyFile := "/etc/letsencrypt/live/wallet.traaitt.com/privkey.pem"
     log.Fatal(srv.ListenAndServeTLS(certFile, keyFile))
 }
