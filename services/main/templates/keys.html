@@ -10,6 +10,7 @@
         <link rel="icon" href="assets/images/fav_icon.ico" type="image/x-icon">
         <meta name="description" content="A secure, easy-to-use wallet for XTE payments. ">
         <title>XTE online wallet</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     </head>
     <body>
         <div class="brand-header">
@@ -17,8 +18,10 @@
         </div>
 
         <div class="table-container">
-            <a href="/logout">logout</a>&nbsp;
-            <a href="/account">account</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>&nbsp;
+            <a href="/account">
+                <i class="fas fa-user"></i> Account
+            </a>
             <hr>
             <h1>Wallet Keys</h1>
             <table>
@@ -57,9 +60,9 @@
             </div>
             <article class="container">
                 <h2 class="center-text">How to use your Keys</h2>
-                <h3>Import your wallet in zedwallet</h3>
+                <h3>Import your wallet in traaittwallet++</h3>
                 <ol>
-                    <li> In the running zedwallet client, <b>type I</b>.</li>
+                    <li> In the running client, <b>type I</b>.</li>
                     <br>
                     <li>Copy and paste your private spend and view key (Shown above).</li>
                     <br>
@@ -69,8 +72,8 @@
                     <br>
                     <li>Once done, press <b>Enter</b>. The wallet will then begin synchronizing with the blockchain. Once synchronization is complete, your balance will be updated.</li>
                 </ol>
-                <h3>Import your wallet in <a href="https://github.com/turtlecoin/turtle-wallet-go">Nest</a></h3>
-                <p> Refer to <a href="https://docs.turtlecoin.lol/guides/wallets/using-nest-wallet/#private-view-and-spend-keys"> THIS GUIDE</a>.</p>
+                <h3>Import your wallet in <a href="https://github.com/trrxitte/traaittEnterpriseXTE/releases">EnterpriseXTE</a></h3>
+                <p> Refer to <a href="https://documentation.trrxitte.com/guides/wallets/Using-Enterprise-Wallet/"> THIS GUIDE</a>.</p>
             </article>
         </div>
 {{ template "footer" }}
