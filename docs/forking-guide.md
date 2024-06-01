@@ -55,7 +55,7 @@ address char(98) NOT NULL); /* Change to your required address length */
 ### Branding
 
 Replace *services/main/assets/images/brand-logo.png* with your own logo.
-Replace *services/main/assets/images/background.jpg* with your own website background.  If you don't use an svg file, replace css references to this in *main.css* and *account.css*
+Replace *services/main/assets/images/background.jpeg* with your own website background.  If you don't use an svg file, replace css references to this in *main.css* and *account.css*
 
 There are a few places you may need to make frontend changes for now  Here are some of them, just do a search for `TRTL` or `Turtle` to find any I missed.
 
