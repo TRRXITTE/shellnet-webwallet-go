@@ -15,7 +15,7 @@ func (daemon *TurtleCoind) check() {
 		daemon.URL = "127.0.0.1"
 	}
 	if daemon.Port == 0 {
-		daemon.Port = 11898
+		daemon.Port = 14485
 	}
 }
 
