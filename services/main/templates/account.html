@@ -96,13 +96,16 @@
     </form>
     {{ if index .PageAttr.Messages "txHash" }}
     <div class="alert success">
-        <input type="checkbox" id="alert1"/>
-        <label class="close" title="close" for="alert1">&times
-        </label>
-        <p class="inner">
-        <strong class="center-text">Transaction Hash</strong> {{ index .PageAttr.Messages "txHash" }}
-        </p>
-    </div>
+      <input type="checkbox" id="alert1"/>
+      <label class="close" title="close" for="alert1">&times</label>
+      <p class="inner">
+          <strong class="center-text">Transaction Hash</strong>
+          <a href="https://explorer.traaitt.com/?hash={{ index .PageAttr.Messages "txHash" }}#blockchain_transaction" target="_blank">
+              {{ index .PageAttr.Messages "txHash" }}
+          </a>
+      </p>
+  </div>
+  
     {{ end }}
   </div>
 </div>
@@ -116,11 +119,11 @@
         <tr>
           {{ if (index $ele "Destination") }}
           <td><b>Withdrawal</b><br></td>
-          <td><b>Recipient</b><br>{{ index $ele "Destination" }}<br><b>Hash</b><br>{{ index $ele "Hash" }}<br><b>PaymentId</b><br>"{{ index $ele "PaymentID"}}"</td>
+          <td><b>Recipient</b><br>{{ index $ele "Destination" }}<br><b>Hash</b><br>{{ index $ele "Hash" }}<br><b>PaymentId</b><br>"{{ index $ele "PaymentID" }}"</td>
           <td><b>Amount</b><br>{{ index $ele "Amount" }}&nbsp;XTE</td>
           {{ else }}
           <td><strong>Deposit</strong></td>
-          <td><b>Hash</b><br>{{ index $ele "Hash" }}<br><b>PaymentId</b><br>"{{ index $ele "PaymentID"}}"</td>
+          <td><b>Hash</b><br>{{ index $ele "Hash" }}<br><b>PaymentId</b><br>"{{ index $ele "PaymentID" }}"</td>
           <td><b>Amount</b><br>{{ index $ele "Amount" }}&nbsp;XTE</td>
           {{ end }}
         </tr>
