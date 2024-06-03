@@ -218,10 +218,20 @@ func (service *TurtleService) updateData() {
 
 // adds a transaction into the database
 func addTransaction(src, dest, hash, paymentID string, amount float64) {
-	_, err := walletDB.Exec(`INSERT INTO transactions (addr_id, dest, hash, paymentID, amount)
-			VALUES ((SELECT id FROM addresses WHERE address = $1),
-				$2, $3, $4, $5);`, src, dest, hash, paymentID, amount/100)
+	// Check if source address exists
+	var addrID int
+	err := walletDB.QueryRow("SELECT id FROM addresses WHERE address = $1", src).Scan(&addrID)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error retrieving source address ID:", err)
+		return
+	}
+
+	// Insert transaction into the database
+	_, err = walletDB.Exec(`
+		INSERT INTO transactions (addr_id, dest, hash, paymentID, amount)
+		VALUES ($1, $2, $3, $4, $5);`,
+		addrID, dest, hash, paymentID, amount)
+	if err != nil {
+		fmt.Println("Error inserting transaction into the database:", err)
 	}
 }
