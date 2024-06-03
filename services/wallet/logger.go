@@ -218,28 +218,20 @@ func (service *TurtleService) updateData() {
 
 // adds a transaction into the database
 func addTransaction(src, dest, hash, paymentID string, amount float64) {
-    var srcAddrID int
+	// Check if source address exists
+	var addrID int
+	err := walletDB.QueryRow("SELECT id FROM addresses WHERE address = $1", src).Scan(&addrID)
+	if err != nil {
+		fmt.Println("Error retrieving source address ID:", err)
+		return
+	}
 
-    // Check if source address exists
-    err := walletDB.QueryRow("SELECT id FROM addresses WHERE address = $1", src).Scan(&srcAddrID)
-    if err != nil {
-        if err == sql.ErrNoRows {
-            fmt.Println("Source address not found:", src)
-        } else {
-            fmt.Println("Error retrieving source address ID:", err)
-        }
-        return
-    }
-
-    // Insert transaction into the database
-    _, err = walletDB.Exec(`
-        INSERT INTO transactions (addr_id, dest, hash, paymentid, amount)
-        VALUES ($1, $2, $3, $4, $5);`,
-        srcAddrID, dest, hash, paymentID, amount)
-    if err != nil {
-        fmt.Println("Error inserting transaction into the database:", err)
-    } else {
-        fmt.Println("Transaction inserted successfully:", hash)
-    }
+	// Insert transaction into the database
+	_, err = walletDB.Exec(`
+		INSERT INTO transactions (addr_id, dest, hash, paymentID, amount)
+		VALUES ($1, $2, $3, $4, $5);`,
+		addrID, dest, hash, paymentID, amount)
+	if err != nil {
+		fmt.Println("Error inserting transaction into the database:", err)
+	}
 }
-
